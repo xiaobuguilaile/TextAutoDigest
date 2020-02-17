@@ -12,6 +12,7 @@ jieba.load_userdict("../utils/jieba_latest_dict.txt")
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
+from loguru import logger
 
 
 def cleanReviewChinese(content):
@@ -50,9 +51,9 @@ def cleanReviewChinese(content):
     return res
 
 
-def w2v_Chinese_preprocess2():
+def w2v_Hanyu_preprocess():
     """
-    中文文本的预处理
+    汉语语料中文文本的预处理
     :return:
     """
 
@@ -71,5 +72,44 @@ def w2v_Chinese_preprocess2():
     pre_data.to_csv("../data/hanyu_preprocess_data(re_stopwords).csv", index=False)
 
 
+def w2v_wiki_preprocess():
+    """
+    wikipedia中文语料处理第3步数据清洗
+    >> 1.经过wikiexractor
+    >> 2.繁体转简体
+    >> 3.数据清洗
+    :return:
+    """
+    with open("../data/raw/wiki_zh_simple.txt", encoding="utf-8") as f:
+        contents = [line.strip() for line in f.readlines()]
+
+    raw_data = pd.DataFrame(contents, columns=["content"])
+
+    pre_data = raw_data["content"].apply(cleanReviewChinese)  # 数据清洗
+
+    # 保存成csv文件
+    pre_data.to_csv("../data/wiki_preprocess_data(re_stopwords).csv", index=False)
+
+
+def combined_data():
+    """ 将wiki和汉语语料预处理的结果合并到一个文件中 """
+
+    import shutil
+    shutil.copyfile('../data/wiki_preprocess_data(re_stopwords).csv', '../data/combined_preprocess_data(re_stopwords).csv')
+
+    with open("../data/hanyu_preprocess_data(re_stopwords).csv", encoding='utf-8') as f:
+        lines = [line for line in f.readlines()]
+
+    fw = open('../data/combined_preprocess_data(re_stopwords).csv', 'a', encoding='utf-8')
+
+    for item in lines:
+        fw.write(item)
+
+    fw.close()
+
+
 if __name__ == '__main__':
-    w2v_Chinese_preprocess2()
+
+    # w2v_Hanyu_preprocess()
+    # w2v_wiki_preprocess()
+    combined_data()
