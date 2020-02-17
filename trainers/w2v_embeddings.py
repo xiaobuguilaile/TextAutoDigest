@@ -104,3 +104,4 @@ if __name__ == '__main__':
     
     model_path="output/word_vectors_100"
     w2v.save_model(model_path)
+    
