@@ -53,11 +53,72 @@ def text2sentence(text):
     text: str
     :rtype: List[str]
     '''
-    raw_sentence = re.findall("\w+[\、*[\“\w+\”]*\.*]*\w*",text)
+    text = re.sub('\n','',text)
+    text = re.sub('\[\w+\]\:*\w*','',text)
+    text = re.sub('([。！？\?])([^”’])', r"\1\n\2", text)  # 单字符断句符
+    text = re.sub('(\.{6})([^”’])', r"\1\n\2", text)  # 英文省略号
+    text = re.sub('(\…{2})([^”’])', r"\1\n\2", text)  # 中文省略号
+    text = re.sub('([。！？\?][”’])([^，。！？\?])', r'\1\n\2', text)
+    # 如果双引号前有终止符，那么双引号才是句子的终点，把分句符\n放到双引号后，注意前面的几句都小心保留了双引号
+    text = text.rstrip()  # 段尾如果有多余的\n就去掉它
+    # 很多规则中会考虑分号;，但是这里我把它忽略不计，破折号、英文双引号等同样忽略，需要的再做些简单调整即可。
+    return text.split("\n")
 
-    return raw_sentence
+def Get_Score(Vs,Vt,Vc,w1=0.02,w2=0.08):
+    '''
+    通过计算每一个句子向量与标题、全文的加权余弦近似度，通过sigmoid函数将结果映射到0~1之间
+    -------------------------------------------------------------------------
+    Vs: Dict{str:np.array}
+    Vt,Vc: np.array (分别为标题，全文向量)
+    w1: float (标题的加权)
+    w2: float (全文的加权)
+    ：rtype: Dict{str:float}
+    '''
+    Score_dict = {}
+    for (sentence,vs) in Vs.items():
+        Score_dict[sentence] = sigmoid(w1*vs.dot(Vt)+w2*vs.dot(Vc))
+    return Score_dict
 
+def sigmoid(x):
+    '''
+    计算sigmoid函数
+    '''
+    return 1/(1+np.exp(-x))
 
+def do_KNN(Score_dict,sentences,w_C=2,w_O=5):
+    '''
+    对每一个分数取前后一句话的加权
+    --------------------------
+    Score_dict: Dict{str:float}
+    sentences: List[str]
+    w_C: float (上下文(context)的权重)
+    w_O: float (中心句(observation)的权重)
+    '''
+    for i,sentence in enumerate(sentences):
+        if i==0:
+            Score_dict[sentence] = (w_C*Score_dict[sentences[i+1]] + w_O*Score_dict[sentence])/(w_C+w_O)
+        if i==len(sentences)-1:
+            Score_dict[sentence] = (w_C*Score_dict[sentences[i-1]] + w_O*Score_dict[sentence])/(w_C+w_O)
+        else:
+            Score_dict[sentence] = (w_C*Score_dict[sentences[i+1]] + w_O*Score_dict[sentence] + w_C*Score_dict[sentences[i-1]])/(2*w_C+w_O)
+    return Score_dict
+
+def summarize(Score_dict,sentences,k=20):
+    '''
+    根据打分输出句子
+    -----------------
+    Score_dict: Dict{str:float}
+    sentences: List[str]
+    k: int (需要输出的句子数量)
+    '''
+    sorted_sent = sorted(Score_dict.items(),key=lambda x: x[1],reverse=True)
+    lower_bound = Score_dict[sorted_sent[k][0]]
+    output = []
+    for sentence in sentences:
+        if Score_dict[sentence] > lower_bound:
+            output.append(sentence)
+    return output
+    
 class GETSentence_Embedding():
     '''
     通过输入的句子产生句向量
@@ -125,6 +186,9 @@ class GETSentence_Embedding():
         '''
         [U,_,_] = np.linalg.svd(VS)
         self.singular_vector = U
+
+
+
 
 
 
