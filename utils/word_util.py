@@ -2,7 +2,7 @@
 
 '''
 @File       : word_util.py
-@Author      : TY Liu
+@Author     : TY Liu
 @Date       : 2020/2/22
 @Desc       : 词语频率和权重计算
 '''
@@ -14,8 +14,8 @@ import json
 
 def get_word_count(data):
     '''
-    获取词语出现次数
-    ----------------
+    获取词语出现次数，可以用于TF-IDF
+    -------------------------------
     data: DataFrame或csv路径, 每行数据为一篇文章以空格分隔的分词结果
     '''
     # 传入路径时读取数据
@@ -34,8 +34,8 @@ def get_word_count(data):
 
 def get_word_freq(counter):
     '''
-    获取词语出现频率
-    ----------------
+    获取词语出现频率，可以用于N-gram
+    --------------------------------
     counter: Counter，包含各词语的出现次数
     '''
     freq = {}
@@ -54,8 +54,8 @@ def get_word_freq(counter):
 
 def get_word_weight(freq, a=1e-3):
     '''
-    SIF-获取词语权重字典
-    ---------------------
+    获取词语权重字典，可以用于SIF
+    -----------------------------
     freq: dict(词语，出现频率)
     a: 权重参数，一般取1e-5 ~ 1e-3
     '''
@@ -72,7 +72,7 @@ def get_word_weight(freq, a=1e-3):
 
 def word_weight_process(data_path, file_path, weight_param=1e-3):
     '''
-    从分词后的句子csv中获取词语权重并保存
+    SIF-从分词后的句子csv中获取词语权重并保存
     -------------------------------------
     data_path: 句子csv文件路径
     file_path: 保存权重文件的路径
@@ -96,7 +96,7 @@ def word_weight_process(data_path, file_path, weight_param=1e-3):
         
 def reload_weights(file_path):
     '''
-    直接读取已处理的词语权重字典
+    SIF-直接读取已处理的词语权重字典
     -----------------------------
     file_path: 保存权重文件的路径
     '''
