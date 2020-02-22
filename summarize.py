@@ -1,11 +1,12 @@
 from models.SIF_model import GETSentence_Embedding,text2sentence,Get_Score,sigmoid,do_KNN,summarize
 import os
 import numpy as np
+import sys
 
 if __name__ == '__main__':
     cwd = os.getcwd()
     path = cwd+"/data/word_vectors_100"
-    # jieba.load_userdict(cwd+"/utils/jieba_latest_dict.txt")
+    output_length = int(sys.argv[1])
     
     
     Calc_SE = GETSentence_Embedding(path)
@@ -13,7 +14,9 @@ if __name__ == '__main__':
     ft = open(cwd+"/data/text.txt",'r',encoding='utf-8')
     text = ft.read()
     ft.close()
-    title = "罗伯特·豪"
+    fti = open(cwd+"/data/title.txt",'r',encoding='utf-8')
+    title = fti.read()
+    fti.close()
 
     ## Get sentence embeddings of every sentence
     Matrix = np.empty((0,100))
@@ -47,12 +50,12 @@ if __name__ == '__main__':
 
     ## give score to every sentence and do KNN smoothins
     Score_dict = Get_Score(Vs,Vt,Vc)
-    Score_dict = do_KNN(Score_dict,sentences)
+    Score_dict = do_KNN(Score_dict,sentences,k=3)
 
     ## generate output summarization and save it into file
-    output = summarize(Score_dict,sentences,20)
+    output = summarize(Score_dict,sentences,k=output_length)
 
     f = open(cwd+'/data/summary.txt','w',encoding='utf-8')
-    f.write(''.join(output))
+    f.write(' '.join(output))
     f.close()
     

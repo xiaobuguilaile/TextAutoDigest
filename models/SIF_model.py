@@ -13,6 +13,8 @@ import gensim
 import pandas as pd
 import os
 import re
+# cwd = os.getcwd()
+# jieba.load_userdict(cwd+"/utils/jieba_latest_dict.txt")
 
 
 def cleanReviewChinese(content):
@@ -64,7 +66,7 @@ def text2sentence(text):
     # 很多规则中会考虑分号;，但是这里我把它忽略不计，破折号、英文双引号等同样忽略，需要的再做些简单调整即可。
     return text.split("\n")
 
-def Get_Score(Vs,Vt,Vc,w1=0.02,w2=0.08):
+def Get_Score(Vs,Vt,Vc,w1=0.4,w2=0.6):
     '''
     通过计算每一个句子向量与标题、全文的加权余弦近似度，通过sigmoid函数将结果映射到0~1之间
     -------------------------------------------------------------------------
@@ -76,7 +78,7 @@ def Get_Score(Vs,Vt,Vc,w1=0.02,w2=0.08):
     '''
     Score_dict = {}
     for (sentence,vs) in Vs.items():
-        Score_dict[sentence] = sigmoid(w1*vs.dot(Vt)+w2*vs.dot(Vc))
+        Score_dict[sentence] = w1*sigmoid(vs.dot(Vt))+w2*sigmoid(vs.dot(Vc))
     return Score_dict
 
 def sigmoid(x):
@@ -85,7 +87,7 @@ def sigmoid(x):
     '''
     return 1/(1+np.exp(-x))
 
-def do_KNN(Score_dict,sentences,w_C=2,w_O=5):
+def do_KNN(Score_dict,sentences,w_C=2,w_O=5,k=1):
     '''
     对每一个分数取前后一句话的加权
     --------------------------
@@ -94,14 +96,24 @@ def do_KNN(Score_dict,sentences,w_C=2,w_O=5):
     w_C: float (上下文(context)的权重)
     w_O: float (中心句(observation)的权重)
     '''
+    new_dict = {}
     for i,sentence in enumerate(sentences):
-        if i==0:
-            Score_dict[sentence] = (w_C*Score_dict[sentences[i+1]] + w_O*Score_dict[sentence])/(w_C+w_O)
-        if i==len(sentences)-1:
-            Score_dict[sentence] = (w_C*Score_dict[sentences[i-1]] + w_O*Score_dict[sentence])/(w_C+w_O)
+        if i<k:
+            new_dict[sentence] = w_O*Score_dict[sentence]
+            for j in range(1,k+1):
+                new_dict[sentence] += w_C*Score_dict[sentences[i+j]]
+            new_dict[sentence] = new_dict[sentence]/(w_O+k*w_C)
+        elif i>=len(sentences)-k:
+            new_dict[sentence] = w_O*Score_dict[sentence]
+            for j in range(1,k+1):
+                new_dict[sentence] += w_C*Score_dict[sentences[i-j]]
+            new_dict[sentence] = new_dict[sentence]/(w_O+k*w_C)
         else:
-            Score_dict[sentence] = (w_C*Score_dict[sentences[i+1]] + w_O*Score_dict[sentence] + w_C*Score_dict[sentences[i-1]])/(2*w_C+w_O)
-    return Score_dict
+            new_dict[sentence] = w_O*Score_dict[sentence]
+            for j in range(1,k+1):
+                new_dict[sentence] += w_C*Score_dict[sentences[i-j]]+w_C*Score_dict[sentences[i+j]]
+            new_dict[sentence] = new_dict[sentence]/(w_O+2*k*w_C)
+    return new_dict
 
 def summarize(Score_dict,sentences,k=20):
     '''
@@ -167,11 +179,11 @@ class GETSentence_Embedding():
             try:
                 vw = self.model[word]
             except:
-                vw = self.model['棼']
+                vw = np.zeros(self.model.wv.vector_size)
             vs = vs+(a/(a+freq))*vw
         if len(clean_sentence)==0:
-            freq = 10000/self.model.corpus_total_words
-            vw = self.model['棼']
+            freq = 1/self.model.corpus_total_words
+            vw = np.zeros(self.model.wv.vector_size)
             vs = (a/(a+freq))*vw
             return vs
         vs = vs/len(clean_sentence)
