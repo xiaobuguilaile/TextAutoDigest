@@ -53,7 +53,7 @@ def text2sentence(text):
     text: str
     :rtype: List[str]
     '''
-    text = re.sub('\n','',text)
+    text = re.sub('\n', '', text)
     text = re.sub('\[\w+\]\:*\w*','',text)
     text = re.sub('([。！？\?])([^”’])', r"\1\n\2", text)  # 单字符断句符
     text = re.sub('(\.{6})([^”’])', r"\1\n\2", text)  # 英文省略号
@@ -95,9 +95,9 @@ def do_KNN(Score_dict,sentences,w_C=2,w_O=5):
     w_O: float (中心句(observation)的权重)
     '''
     for i,sentence in enumerate(sentences):
-        if i==0:
+        if i==0:  # 首句
             Score_dict[sentence] = (w_C*Score_dict[sentences[i+1]] + w_O*Score_dict[sentence])/(w_C+w_O)
-        if i==len(sentences)-1:
+        if i==len(sentences)-1:  # 尾句
             Score_dict[sentence] = (w_C*Score_dict[sentences[i-1]] + w_O*Score_dict[sentence])/(w_C+w_O)
         else:
             Score_dict[sentence] = (w_C*Score_dict[sentences[i+1]] + w_O*Score_dict[sentence] + w_C*Score_dict[sentences[i-1]])/(2*w_C+w_O)
@@ -131,7 +131,7 @@ class GETSentence_Embedding():
         '''
         self.model = gensim.models.Word2Vec.load(path)
         self.sentence = ''
-        self.singular_vector = np.empty((self.model.wv.vector_size,self.model.wv.vector_size))
+        self.singular_vector = np.empty((self.model.wv.vector_size, self.model.wv.vector_size))
 
     def _process_sentence(self):
         '''
@@ -161,7 +161,7 @@ class GETSentence_Embedding():
         vs = np.zeros(self.model.wv.vector_size)
         for word in clean_sentence:
             try:
-                freq = self.model.wv.vocab[word].count/self.model.corpus_total_words #TODO: 如何处理“out of vocabulary”?
+                freq = self.model.wv.vocab[word].count/self.model.corpus_total_words # TODO: 如何处理“out of vocabulary”?
             except:
                 freq = 1/self.model.corpus_total_words
             try:
@@ -194,4 +194,4 @@ class GETSentence_Embedding():
 
         
         
-        
+
