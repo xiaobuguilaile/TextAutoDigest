@@ -95,6 +95,7 @@ def do_KNN(Score_dict,sentences,w_C=2,w_O=5,k=1):
     sentences: List[str]
     w_C: float (上下文(context)的权重)
     w_O: float (中心句(observation)的权重)
+    k: int (k个近邻)
     '''
     new_dict = {}
     for i,sentence in enumerate(sentences):
@@ -141,7 +142,7 @@ class GETSentence_Embedding():
         --------
         path: str (词向量的路径)
         '''
-        self.model = gensim.models.Word2Vec.load(path)
+        self.model = gensim.models.KeyedVectors.load(path)
         self.sentence = ''
         self.singular_vector = np.empty((self.model.wv.vector_size,self.model.wv.vector_size))
 
@@ -172,20 +173,22 @@ class GETSentence_Embedding():
         clean_sentence = self._process_sentence()
         vs = np.zeros(self.model.wv.vector_size)
         for word in clean_sentence:
+            # use laplace smoothing for OOV word
             try:
-                freq = self.model.wv.vocab[word].count/self.model.corpus_total_words #TODO: 如何处理“out of vocabulary”?
+                freq = (1+self.model.wv.vocab[word].count)/(self.model.corpus_total_words+self.model.corpus_count) 
             except:
-                freq = 1/self.model.corpus_total_words
+                freq = 1/(self.model.corpus_total_words+self.model.corpus_count)
             try:
                 vw = self.model[word]
             except:
-                vw = np.zeros(self.model.wv.vector_size)
+                vw = np.random.rand(self.model.wv.vector_size)
+
             vs = vs+(a/(a+freq))*vw
-        if len(clean_sentence)==0:
-            freq = 1/self.model.corpus_total_words
-            vw = np.zeros(self.model.wv.vector_size)
-            vs = (a/(a+freq))*vw
+
+        if len(clean_sentence)==0: #if the sentence is empty after stopwords-removal
+            vs = np.random.rand(self.model.wv.vector_size)
             return vs
+
         vs = vs/len(clean_sentence)
 
         return vs
