@@ -142,7 +142,7 @@ class GETSentence_Embedding():
         --------
         path: str (词向量的路径)
         '''
-        self.model = gensim.models.KeyedVectors.load(path)
+        self.model = gensim.models.Word2Vec.load(path)
         self.sentence = ''
         self.singular_vector = np.empty((self.model.wv.vector_size,self.model.wv.vector_size))
 
