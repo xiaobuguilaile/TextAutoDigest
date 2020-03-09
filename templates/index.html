@@ -46,12 +46,12 @@
         var message = $("#send_content").val()
         $.ajax({
             url:"/send_message/",
-            type:"GET",
+            type:"POST",
             data:{
                 message:message
             },
             success:function (data) {
-                console.log(data.message)
+                $("#recv_content").val(data.message)
             },
             error:function () {
                 alert("接收失败")
@@ -61,14 +61,14 @@
 </script>
 
 <!-- 接收 -->
-<script type="text/javascript">
+<!-- <script type="text/javascript">
     $("#send").click(function () {
         $.getJSON("/change_to_json/",function (data) {
             $("#recv_content").val(data.message) //将后端数据显示在前端
             console.log("传到前端的数据的类型：" + typeof (data.message))
         })
     })
-</script>
+</script> -->
 
 </body>
 </html>
