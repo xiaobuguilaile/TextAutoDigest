@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hebron</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <br>
+        <h1>Hebron摘要提取器</h1>
+        <br>
+        <div>
+            <input id="send" type="button" value="开始提取">
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-8">
+            <label for="send_content">原文：</label><br>
+            <textarea id="send_content" style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none;" name="send_content"></textarea>
+            </div>
+
+            <div class="col-md-4">
+            <label for="recv_content">摘要：</label><br>
+            <textarea id="recv_content" style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none;" name="recv_content"></textarea>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+<div>
+
+</div>
+
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/jquery-3.4.1.min.js"></script>
+<!-- 发送 -->
+<script type="text/javascript">
+    $("#send").click(function () {
+        var message = $("#send_content").val()
+        $.ajax({
+            url:"/send_message/",
+            type:"GET",
+            data:{
+                message:message
+            },
+            success:function (data) {
+                console.log(data.message)
+            },
+            error:function () {
+                alert("接收失败")
+            }
+        })
+    })
+</script>
+
+<!-- 接收 -->
+<script type="text/javascript">
+    $("#send").click(function () {
+        $.getJSON("/change_to_json/",function (data) {
+            $("#recv_content").val(data.message) //将后端数据显示在前端
+            console.log("传到前端的数据的类型：" + typeof (data.message))
+        })
+    })
+</script>
+
+</body>
+</html>
+
