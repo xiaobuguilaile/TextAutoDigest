@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-from process import extract
 import json
 import os
 from models.SIF_model import GETSentence_Embedding
@@ -15,8 +14,10 @@ def index():
 def send_message():
     # global message_get
     message_get = request.form['message']
+    title_get = request.form['title']
     # message_get = request.args['message']
-    abstract = extract(model, message_get)
+    print("标题：%s" % title_get)
+    abstract = model.extract(message_get, title_get)
     # TODO Inhence the output via syntax
     print("摘要：%s" % abstract)
     message_json = {
