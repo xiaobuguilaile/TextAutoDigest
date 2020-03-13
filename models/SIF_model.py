@@ -136,7 +136,7 @@ class GETSentence_Embedding():
     '''
     通过输入的句子产生句向量
     '''
-    def __init__(self, path, score_title_weight=0.4, knn_w_c=2, knn_w_o=5, knn_k=2, sentence_embed_a=0.0001,
+    def __init__(self, path, score_title_weight=0.4, knn_w_c=2, knn_w_o=5, knn_k=2, sentence_embed_a=1e-4,
                  abstract_percent=0.2, max_output_length=20):
         '''
         初始化
