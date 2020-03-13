@@ -142,6 +142,13 @@ class GETSentence_Embedding():
         初始化
         --------
         path: str (词向量的路径)
+        score_title_weight: float (最终得分计算中标题的加权)
+        knn_w_c: float (knn计算，上下文(context)的权重)
+        knn_w_o: float (中心句(observation)的权重)
+        knn_k: int (knn计算，近邻个数)
+        sentence_embed_a: float (使用SIF方法获得加权句向量的权重参数)
+        abstract_percent: float (默认获取摘要占全文的百分比)
+        max_output_length: int (最大摘要句子数目)
         '''
         self.model = gensim.models.Word2Vec.load(path)
         self.word_vector_size = self.model.wv.vector_size

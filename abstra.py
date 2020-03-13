@@ -1,3 +1,9 @@
+'''
+@File       : abstra.py
+@Author     : W Li, TY Liu
+@Date       : 2020/3/13
+@Desc       : Main entrance, using flask server.
+'''
 from flask import Flask, render_template, request, jsonify
 import json
 import os
