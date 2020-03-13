@@ -9,30 +9,29 @@
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" style="background-color:teal;">
         <br>
-        <h1>Hebron摘要提取器</h1>
+        <h1 style="color:gold">Hebron摘要提取器</h1>
         <br>
-        <div>
-            <input id="send" type="button" value="开始提取">
+        <div class="row">
+            <div class="col-md-8">
+                <label for="send_title" style="color:gold">标题：</label>
+                <input class="form-control" id="send_title" placeholder="请输入标题（可选）..." type="text" style="width: 90%; height:28px; resize: none; background-color:azure;" name="send_title">
+            </div>
         </div>
         <br>
         <div class="row">
             <div class="col-md-8">
-            <label for="send_content">原文：</label><br>
-            <textarea id="send_content" style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none;" name="send_content"></textarea>
-            </div>
-
+            <label for="send_content" style="color:gold">原文：</label><br>
+            <textarea class="form-control" id="send_content" placeholder="请输入正文文本..." style="width: 100%; height: 80%;overflow: auto;word-break: break-all; resize: none; background-color:azure;" name="send_content"></textarea>    
+            <input id="send" type="button" class='btn btn-warning' style="margin-top:2px;float:right" value="开始提取">
+        </div>
             <div class="col-md-4">
-            <label for="recv_content">摘要：</label><br>
-            <textarea id="recv_content" style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none;" name="recv_content"></textarea>
+            <label for="recv_content" style="color:gold">摘要：</label><br>
+            <textarea id="recv_content" readonly style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none; background-color:azure;" name="recv_content"></textarea>
             </div>
         </div>
     </div>
-
-
-
-
 
 <div>
 
@@ -44,11 +43,13 @@
 <script type="text/javascript">
     $("#send").click(function () {
         var message = $("#send_content").val()
+        var title = $("#send_title").val()
         $.ajax({
             url:"/send_message/",
             type:"POST",
             data:{
-                message:message
+                message:message,
+                title:title
             },
             success:function (data) {
                 $("#recv_content").val(data.message)

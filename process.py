@@ -1,7 +1,7 @@
 from models.SIF_model import GETSentence_Embedding,text2sentence,Get_Score,sigmoid,do_KNN,summarize
 import numpy as np
 
-def extract(model, text):
+def extract(model, text, title=None):
     '''
     使用模型从输入文本中提取摘要内容。
     ------------------------------------
@@ -12,15 +12,16 @@ def extract(model, text):
     Matrix = np.empty((0,100))
     # Seperate sentences
     sentences = text2sentence(text)
-    # Using the first sentence as the title
-    title = sentences[0]
+    if not title and sentences:
+        # Using the first sentence as the title
+        title = sentences[0]
     # TODO Determine a suitable way to set the output length
     abstract_percent = 0.2
     output_length = int(len(sentences) * abstract_percent)
     # Add a length limit
     if output_length > 20:
         output_length = 20
-        
+
     ## Get sentence embeddings of every sentence
     Vs = {}
     for sentence in sentences:

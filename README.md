@@ -1,4 +1,4 @@
-### >>本项目由4人小组协作完成：howling, Codename-01, omige, xiaobuguilaile
+### >>本项目由4人小组协作完成：howling0, Codename-01, omige, xiaobuguilaile
 
 ### 文本摘要
 

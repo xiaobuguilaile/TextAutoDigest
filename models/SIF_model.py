@@ -136,15 +136,24 @@ class GETSentence_Embedding():
     '''
     通过输入的句子产生句向量
     '''
-    def __init__(self,path):
+    def __init__(self, path, score_title_weight=0.4, knn_w_c=2, knn_w_o=5, knn_k=2, sentence_embed_a=1e-4,
+                 abstract_percent=0.2, max_output_length=20):
         '''
         初始化
         --------
         path: str (词向量的路径)
         '''
         self.model = gensim.models.Word2Vec.load(path)
+        self.word_vector_size = self.model.wv.vector_size
         self.sentence = ''
-        self.singular_vector = np.empty((self.model.wv.vector_size,self.model.wv.vector_size))
+        self.singular_vector = np.empty((self.word_vector_size,self.word_vector_size))
+        self.score_title_weight = score_title_weight
+        self.knn_w_c = knn_w_c
+        self.knn_w_o = knn_w_o
+        self.knn_k = knn_k
+        self.sentence_embed_a = sentence_embed_a
+        self.abstract_percent = abstract_percent
+        self.max_output_length = max_output_length
 
     def _process_sentence(self):
         '''
@@ -201,6 +210,64 @@ class GETSentence_Embedding():
         '''
         [U,_,_] = np.linalg.svd(VS)
         self.singular_vector = U
+
+    def extract(self, text, title=None):
+        '''
+        使用模型从输入文本中提取摘要内容。
+        ------------------------------------
+        model: 模型
+        text: 输入文本
+        title: 输入标题
+        '''
+
+        Matrix = np.empty((0, self.word_vector_size))
+        # Seperate sentences
+        sentences = text2sentence(text)
+        if not title and sentences:
+            # Using the first sentence as the title
+            title = sentences[0]
+        # TODO Determine a suitable way to set the output length
+        output_length = int(len(sentences) * self.abstract_percent)
+        # Add a length limit
+        if output_length > self.max_output_length:
+            output_length = self.max_output_length
+
+        ## Get sentence embeddings of every sentence
+        Vs = {}
+        for sentence in sentences:
+            self.load_data(sentence)
+            vs = self.sentence_EMB(self.sentence_embed_a)
+            Matrix = np.vstack((Matrix,vs))
+            Vs[sentence] = vs
+        Matrix = np.transpose(Matrix)
+        self.do_SVD(Matrix)
+        u = self.singular_vector[:,0].reshape(self.word_vector_size,1)
+        for sentence in sentences:
+            vs = Vs[sentence]
+            PC = u*np.transpose(u)
+            vs = vs-PC.dot(vs)
+            Vs[sentence] = vs
+
+        del Matrix
+
+        ## Get sentence embeddings of title
+        self.load_data(title)
+        Vt = self.sentence_EMB(self.sentence_embed_a)
+        Vt = Vt-PC.dot(Vt)
+
+        ## Get sentence embeddings of whole text
+        self.load_data(text)
+        Vc = self.sentence_EMB(self.sentence_embed_a)
+        Vc = Vc-PC.dot(Vc)
+
+        ## give score to every sentence and do KNN smoothins
+        Score_dict = Get_Score(Vs,Vt,Vc,w1=self.score_title_weight,w2=1-self.score_title_weight)
+        Score_dict = do_KNN(Score_dict,sentences,w_C=self.knn_w_c, w_O=self.knn_w_o, k=self.knn_k)
+
+        ## generate output summarization and save it into file
+        output = summarize(Score_dict,sentences,k=output_length)
+
+        return ' '.join(output)
 
 
 
