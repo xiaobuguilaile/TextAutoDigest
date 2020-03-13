@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, app
+from flask import Flask, render_template, request, jsonify
 import json
 import os
 import argparse
@@ -17,6 +17,7 @@ def parse_args(check=True):
     parser.add_argument('--sentence_embed_a', type=float, default=1e-4)
     parser.add_argument('--abstract_percent', type=float, default=0.2)
     parser.add_argument('--max_output_length', type=float, default=20)
+    parser.add_argument('--debugging', type=int, default=0)
     FLAGS, unparsed = parser.parse_known_args()
     return FLAGS, unparsed
 
@@ -63,6 +64,8 @@ if __name__ == '__main__':
     app.logger.info("Model building succeed!")
     app.logger.info("############ Ready to Serve #################")
     # 启动服务
+    # 设置debug模式
+    app.debug = FLAGS.debugging
     app.run()
 
 

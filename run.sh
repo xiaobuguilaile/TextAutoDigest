@@ -17,6 +17,8 @@ sentence_embed_a=1e-4
 abstract_percent=0.2
 # 最大摘要句子数目
 max_output_length=20
+# 是否开启debug模式(0:关闭，1：开启)
+debugging=0
 
 # 运行python服务
 echo "############ Hebron Starting... #################"
@@ -28,4 +30,5 @@ python ./abstra.py --data_dir=$data_dir \
                    --knn_k=$knn_k \
                    --sentence_embed_a=$sentence_embed_a \
                    --abstract_percent=$abstract_percent \
-                   --max_output_length=$max_output_length
+                   --max_output_length=$max_output_length \
+                   --debugging=$debugging
