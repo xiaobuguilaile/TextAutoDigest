@@ -16,3 +16,12 @@ build
 
 # test
 test.py
+
+# log
+log/
+
+# data
+data/combined_preprocess_data(re_stopwords).csv
+data/hanyu_preprocess_data(re_stopwords).csv
+data/wiki_preprocess_data(re_stopwords).csv
+data/hanyu_preprocess_data.csv
