@@ -22,54 +22,59 @@
         <br>
         <div class="row">
             <div class="col-md-8">
-            <label for="send_content" style="color:gold">原文：</label><br>
-            <textarea class="form-control" id="send_content" placeholder="请输入正文文本..." style="width: 100%; height: 80%;overflow: auto;word-break: break-all; resize: none; background-color:azure;" name="send_content"></textarea>    
-            <input id="send" type="button" class='btn btn-warning' style="margin-top:2px;float:right" value="开始提取">
-        </div>
+                <label for="send_content" style="color:gold">原文：</label><p style="float:right; color:gold"><span id="num">0</span>字</p><br>
+                <textarea class="form-control" id="send_content" placeholder="请输入正文文本..." style="width: 100%; height: 80%;overflow: auto;word-break: break-all; resize: none; background-color:azure;" name="send_content"></textarea>
+                <input id="send" type="button" class='btn btn-warning' style="margin-top:2px;float:right" value="开始提取">
+            </div>
             <div class="col-md-4">
-            <label for="recv_content" style="color:gold">摘要：</label><br>
-            <textarea id="recv_content" readonly style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none; background-color:azure;" name="recv_content"></textarea>
+                <label for="recv_content" style="color:gold">摘要：</label><p style="float:right; color:gold"><span id="num2">0</span>字，占比<span id="num3">0</span>%</p><br>
+                <textarea id="recv_content" readonly style="width: 100%; height: 400px ;overflow: auto;word-break: break-all; resize: none; background-color:azure;" name="recv_content"></textarea>
+                
             </div>
         </div>
     </div>
 
-<div>
-
-</div>
-
-<script src="/static/js/bootstrap.min.js"></script>
-<script src="/static/js/jquery-3.4.1.min.js"></script>
-<!-- 发送 -->
-<script type="text/javascript">
-    $("#send").click(function () {
-        var message = $("#send_content").val()
-        var title = $("#send_title").val()
-        $.ajax({
-            url:"/send_message/",
-            type:"POST",
-            data:{
-                message:message,
-                title:title
-            },
-            success:function (data) {
-                $("#recv_content").val(data.message)
-            },
-            error:function () {
-                alert("接收失败")
+    <script src="/static/js/jquery-3.4.1.min.js"></script>
+    <!-- 发送 -->
+    <script type="text/javascript">
+        $("#send").click(function () {
+            var message = $("#send_content").val()
+            // 判断正文是否为空
+            if(message.length == 0){
+                // 清空摘要内容
+                $("#recv_content").val("");
+                $("#num2").html(0);
+                $("#num3").html(0);
+                alert("请输入要进行摘要的内容！");
+                return false;
             }
-        })
-    })
-</script>
+            // 获取标题
+            var title = $("#send_title").val()
+            // 调用服务
+            $.ajax({
+                url:"/send_message/",
+                type:"POST",
+                data:{
+                    message:message,
+                    title:title
+                },
+                success:function (data) {
+                    // 展示摘要内容
+                    $("#recv_content").val(data.message);
+                    // 展示摘要字数和百分比
+                    $("#num2").html(data.message.length);
+                    $("#num3").html((data.message.length / Number($("#num").text()) * 100).toFixed(2));
+                },
+                error:function () {
+                    alert("模型调用失败！");
+                }
+            })
+        });
 
-<!-- 接收 -->
-<!-- <script type="text/javascript">
-    $("#send").click(function () {
-        $.getJSON("/change_to_json/",function (data) {
-            $("#recv_content").val(data.message) //将后端数据显示在前端
-            console.log("传到前端的数据的类型：" + typeof (data.message))
-        })
-    })
-</script> -->
+        $("#send_content").on('input propertychange',function(e){
+            $("#num").html(e.target.value.length);
+        });
+    </script>
 
 </body>
 </html>

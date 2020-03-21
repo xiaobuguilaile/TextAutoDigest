@@ -1,9 +1,16 @@
+'''
+@File       : abstra.py
+@Author     : W Li, TY Liu
+@Date       : 2020/3/13
+@Desc       : Main entrance, using flask server.
+'''
+
 from flask import Flask, render_template, request, jsonify
 import json
 import os
-import argparse
 from models.SIF_model import GETSentence_Embedding
 import logging
+import argparse
 
 app = Flask(__name__)
 
@@ -27,7 +34,6 @@ def parse_args(check=True):
 @app.route('/')
 def index():
     return render_template("index.html")
-
 
 @app.route('/send_message/', methods=['POST'])
 def send_message():
