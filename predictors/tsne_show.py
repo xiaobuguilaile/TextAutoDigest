@@ -1,3 +1,12 @@
+
+'''
+@File       : tsne_show.py
+@Author     : W Li
+@Date       : 2020/3/13
+@Desc       : word embedding visualization
+'''
+
+
 from gensim.models import Word2Vec
 from random import sample
 from pylab import mpl

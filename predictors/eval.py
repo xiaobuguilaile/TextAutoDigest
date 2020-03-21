@@ -25,7 +25,7 @@ def eval(model):
     model: 模型
     '''
     bleu, r1, r2, rl, sim = get_mean_score(model, test_dir="./data/test/", stopwords_path="./data/stopwords.txt", verbose=0)
-    res = "BLEU:"+str(bleu),"Rouge-1:"+str(r1),"Rouge-2:"+str(r2),"Rouge-l:"+str(rl),"Similarity:"+str(sim)
+    res = "BLEU:"+str(bleu), "Rouge-1:"+str(r1), "Rouge-2:"+str(r2), "Rouge-l:"+str(rl),"Similarity:"+str(sim)
     print(res)
     logger.info(res)
     return bleu, r1, r2, rl, sim
@@ -81,8 +81,7 @@ def triple_tuning(param_a, param_b, param_c, model):
                 setattr(model, param_c, p_c)
                 logger.info("======== eval "+param_a+"="+str(p_a)+" while "+param_b+"="+str(p_b)+" and "+param_c+"="+str(p_c)+" ========")
                 bleu, r1, r2, rl, sim = eval(model)
-                df.loc[len(df)] = [param_a, p_a, param_b, p_b, param_c, p_c, bleu, r1, r2, rl, sim] 
-            
+                df.loc[len(df)] = [param_a, p_a, param_b, p_b, param_c, p_c, bleu, r1, r2, rl, sim]
 
 
 if __name__ == '__main__':
