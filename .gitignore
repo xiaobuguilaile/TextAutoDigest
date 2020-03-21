@@ -25,3 +25,8 @@ data/combined_preprocess_data(re_stopwords).csv
 data/hanyu_preprocess_data(re_stopwords).csv
 data/wiki_preprocess_data(re_stopwords).csv
 data/hanyu_preprocess_data.csv
+
+# outputs
+outputs/word_vectors_s100_w10.bin
+outputs/word_vectors_s100_w10.bin.trainables.syn1neg.npy
+outputs/word_vectors_s100_w10.bin.wv.vectors.npy
