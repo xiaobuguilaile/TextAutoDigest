@@ -17,7 +17,7 @@ import re
 # jieba.load_userdict(cwd+"/utils/jieba_latest_dict.txt")
 
 
-def cleanReviewChinese(content):
+def cleanReviewChinese(content, stopwords_path="./data/stopwords.txt"):
     """
     中文文本预处理函数：去除各种标点符号，HTML标签，小写化
     :param content: str
@@ -41,7 +41,7 @@ def cleanReviewChinese(content):
     words = jieba.cut(newContent)
 
     # 去除停止词
-    with open("./data/stopwords.txt", encoding="utf-8-sig") as f:
+    with open(stopwords_path, encoding="utf-8-sig") as f:
         stopwords = [line.strip() for line in f.readlines()]
     filter_words = [word for word in words if word not in stopwords]
 
@@ -137,7 +137,7 @@ class GETSentence_Embedding():
     通过输入的句子产生句向量
     '''
     def __init__(self, path, score_title_weight=0.4, knn_w_c=2, knn_w_o=5, knn_k=2, sentence_embed_a=1e-4,
-                 abstract_percent=0.2, max_output_length=20):
+                 abstract_percent=0.2, max_output_length=20, stopwords_path="./data/stopwords.txt"):
         '''
         初始化
         --------
@@ -149,6 +149,7 @@ class GETSentence_Embedding():
         sentence_embed_a: float (使用SIF方法获得加权句向量的权重参数)
         abstract_percent: float (默认获取摘要占全文的百分比)
         max_output_length: int (最大摘要句子数目)
+        stopwords_path: str (停用词表路径)
         '''
         self.model = gensim.models.Word2Vec.load(path)
         self.word_vector_size = self.model.wv.vector_size
@@ -161,6 +162,7 @@ class GETSentence_Embedding():
         self.sentence_embed_a = sentence_embed_a
         self.abstract_percent = abstract_percent
         self.max_output_length = max_output_length
+        self.stopwords_path = stopwords_path
 
     def _process_sentence(self):
         '''
@@ -168,7 +170,7 @@ class GETSentence_Embedding():
         -------------------------
         :rtype: List[str]
         '''
-        return cleanReviewChinese(self.sentence)
+        return cleanReviewChinese(self.sentence, self.stopwords_path)
 
     def load_data(self,sentence):
         '''
