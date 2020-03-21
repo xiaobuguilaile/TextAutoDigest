@@ -7,30 +7,14 @@
 from flask import Flask, render_template, request, jsonify
 import json
 import os
-import argparse
 from models.SIF_model import GETSentence_Embedding
+from utils.arg_util import parse_args
 import logging
 app = Flask(__name__)
-
-def parse_args(check=True):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default="./data")
-    parser.add_argument('--wv_file_name', type=str, default="word_vectors_100")
-    parser.add_argument('--score_title_weight', type=float, default=0.4)
-    parser.add_argument('--knn_w_c', type=float, default=2)
-    parser.add_argument('--knn_w_o', type=float, default=5)
-    parser.add_argument('--knn_k', type=int, default=2)
-    parser.add_argument('--sentence_embed_a', type=float, default=1e-4)
-    parser.add_argument('--abstract_percent', type=float, default=0.2)
-    parser.add_argument('--max_output_length', type=float, default=20)
-    parser.add_argument('--debugging', type=int, default=0)
-    FLAGS, unparsed = parser.parse_known_args()
-    return FLAGS, unparsed
 
 @app.route('/')
 def index():
     return render_template("index.html")
-
 
 @app.route('/send_message/', methods=['POST'])
 def send_message():
